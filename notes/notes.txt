@@ -1,0 +1,11 @@
+TODO
+[ ] put code on github
+[ ] DUPLICATE NOTIFICATION BUG: handle refreshes that occur after a notification but before the corresponding session
+[ ] app and notification icons
+[ ] rename to Focusmate Unofficial
+[ ] better error handling for sign in issues
+[ ] allow setting notification period
+[ ] put it on the play store
+[ ] option for making it an alarm instead of a notification
+[ ] clean up notification-interface.ts
+[ ] tests
