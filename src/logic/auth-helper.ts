@@ -1,6 +1,6 @@
 import EncryptedStorage from "react-native-encrypted-storage"
 import { getTokensCall, refreshAccessTokenCall } from "../interfaces/network-interface"
-import { getEncryptedJson, storeEncryptedJson } from "../interfaces/storage-interface"
+import { getEncryptedJson, storeEncryptedJson } from "../interfaces/encrypted-storage-interface"
 
 const TOKEN_DATA_STORAGE_KEY = 'FM:tokens'
 const TOKEN_STALENESS_GUARD_MINUTES = 10 // how many minutes before staleness should we refresh?

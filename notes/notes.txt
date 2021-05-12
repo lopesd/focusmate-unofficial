@@ -1,8 +1,9 @@
 TODO
-[ ] put code on github
-[ ] DUPLICATE NOTIFICATION BUG: handle refreshes that occur after a notification but before the corresponding session
+[x] put code on github
 [ ] app and notification icons
+[ ] DUPLICATE NOTIFICATION BUG: handle refreshes that occur after a notification but before the corresponding session
 [ ] rename to Focusmate Unofficial
+[ ] fix the keyboardavoidingview
 [ ] better error handling for sign in issues
 [ ] allow setting notification period
 [ ] put it on the play store
