@@ -13,20 +13,20 @@ export interface TokenData {
 
 // fetch both an access and a refresh token using an email and password. store both.
 export async function fetchAndStoreNewTokensFromNetwork(email: string, password: string) {
+  console.log('fetching tokens...')
   const idCallResp = await getTokensCall(email, password)
-  console.log('idCallResp', idCallResp)
   const tokenData = getTokenDataFromIdCallResponse(idCallResp)
   if (!tokenData.accessToken) {
     throw 'Could not retrieve access token. Inspect the network call' // TODO IMPROVE ERROR HANDLING
   }
   await storeTokenData(tokenData)
-  console.log('stored!')
+  console.log('stored tokens')
   return tokenData
 }
 
 export async function getAndRefreshStoredTokenData() {
   let tokenData = await getStoredTokenData()
-  console.log('retrieved stored token data:', tokenData)
+  console.log('retrieved stored token data')
   if (tokenData) {
     return refreshTokenDataIfStale(tokenData)
   }
@@ -40,8 +40,8 @@ export async function refreshTokenDataIfStale(tokenData: TokenData): Promise<Tok
   const staleAt = tokenData.validUntil - (TOKEN_STALENESS_GUARD_MINUTES * 60 * 1000)
   const now = Date.now()
   if (now >= staleAt) {
+    console.log('refreshing access token')
     const refreshCallResponse = await refreshAccessTokenCall(tokenData.refreshToken)
-    console.log('REFRESHING TOKEN. refreshCallResponse:', refreshCallResponse)
     const newTokenData = getTokenDataFromRefreshCallResponse(refreshCallResponse)
     if (!tokenData.accessToken) {
       throw 'Could not retrieve access token. Inspect the network call' // TODO IMPROVE ERROR HANDLING, invalid password/username sitch
@@ -58,7 +58,7 @@ export async function clearStoredTokens() {
 }
 
 async function storeTokenData(tokenData: TokenData) {
-  console.log('storing token data:', tokenData)
+  console.log('storing token data')
   return storeEncryptedJson(TOKEN_DATA_STORAGE_KEY, tokenData)
 }
 

@@ -4,7 +4,6 @@ import { PushNotificationScheduledLocalObject, PushNotificationScheduleObject } 
 import { AuthContext } from '../contexts'
 import { getScheduledNotifications } from '../interfaces/notification-interface'
 import { simpleTimeFormat } from '../logic/date-helpers'
-import { configureBackgroundExecution } from '../logic/notification-refresh-logic'
 import { FocusmateSession } from '../types'
 import IonIcons from 'react-native-vector-icons/Ionicons'
 
@@ -30,24 +29,9 @@ function Session(props: { session: FocusmateSession }) {
 
 interface MainScreenProps {
   sessions: FocusmateSession[]
-  refreshSessions: () => void
 }
 
 export default function MainScreen(props: MainScreenProps) {
-  const authContext = React.useContext(AuthContext)
-
-  useEffect(() => {
-    configureBackgroundExecution()
-  }, [])
-
-  const [notifications, setNotifications] = React.useState<PushNotificationScheduledLocalObject[]>([])
-
-  async function checkNotificationStateButtonPress() {
-    const notifications = await getScheduledNotifications()
-    console.log('setting notifications', notifications)
-    setNotifications(notifications)
-  }
-
   return (
     <View style={styles.gutters}>
       {props.sessions.map(session =>

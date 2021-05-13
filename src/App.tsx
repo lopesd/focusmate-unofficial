@@ -2,10 +2,14 @@ import React from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { AuthenticationScreen } from './screens/authentication-screen'
 import { HomeTabBar } from './screens/home-tab-bar'
-import { Text, View } from 'react-native'
-import { TokenData, clearStoredTokens, getAndRefreshStoredTokenData } from './logic/auth-helper'
+import { TokenData, clearStoredTokens, getAndRefreshStoredTokenData, refreshTokenDataIfStale } from './logic/auth-helper'
 import { clearAllScheduledNotifications } from './logic/notification-helpers'
 import { SplashScreen } from './screens/splash-screen'
+import { clearStoredSettings, defaultSettings, getStoredSettingsOrDefaults, mergeSettings } from './logic/settings-helper'
+import { PartialFMAppSettings } from './logic/settings-helper'
+import { AuthContext, FMAppSettingsContext, SettingsContext } from './contexts'
+import { configureAndStartBackgroundExecution, stopBackgroundExecution } from './logic/notification-refresh-logic'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type AuthState = 
   | { state: 'LOADING' }
@@ -14,17 +18,14 @@ type AuthState =
 
 const App = () => {
   const [authState, setAuthState] = React.useState<AuthState>({ state: 'LOADING' })
-
-  function setTokenData (tokenData: TokenData) {
-    setAuthState({ state: 'AUTHORIZED', tokenData })
-  }
+  const [settings, setSettings] = React.useState(defaultSettings())
   
   React.useEffect(() => {
     const bootstrapAsync = async () => {
       // fetch access token from storage
       let tokenData = await getAndRefreshStoredTokenData()
       if (tokenData) {
-        setAuthState({ state: 'AUTHORIZED', tokenData })
+        signIn(tokenData)
       } else {
         setAuthState({ state: 'AUTHORIZING' })
       }
@@ -32,25 +33,60 @@ const App = () => {
     bootstrapAsync()
   }, [])
 
+  async function signIn (tokenData: TokenData) {
+    // fetch stored settings
+    let storedSettings = await getStoredSettingsOrDefaults()
+    if (storedSettings) {
+      setSettings(storedSettings)
+    }
+    configureAndStartBackgroundExecution()
+    setAuthState({ state: 'AUTHORIZED', tokenData })
+  }
+
   async function signOut () {
-    clearStoredTokens()
-    clearAllScheduledNotifications()
+    await Promise.all([
+      clearAllScheduledNotifications(),
+      clearStoredTokens(),
+      // clearStoredSettings(), // let's persist settings per-device for now - better user experience than resetting to defaults after signout/signin
+      stopBackgroundExecution()
+    ])
     setAuthState({ state: 'AUTHORIZING' })
   }
   
+  function renderScreen(authState: AuthState) {
+    if (authState.state === 'LOADING') {
+      return <SplashScreen />
+
+    } else if (authState.state === 'AUTHORIZING') {
+      return <AuthenticationScreen signIn={signIn} />
+
+    } else {
+      const authContext: AuthContext = {
+        accessToken: async () => (await refreshTokenDataIfStale(authState.tokenData)).accessToken,
+        signOut
+      }
+
+      const settingsContext: FMAppSettingsContext = {
+        settings,
+        updateSettings: async (partialSettings: PartialFMAppSettings) => {
+          const newSettings = await mergeSettings(partialSettings)
+          setSettings(newSettings)
+        }
+      }
+
+      return (
+        <AuthContext.Provider value={authContext}>
+          <SettingsContext.Provider value={settingsContext}>
+            <HomeTabBar />
+          </SettingsContext.Provider>
+        </AuthContext.Provider>
+      )
+    }
+  }
+
   return (
     <NavigationContainer>
-      {authState.state === 'LOADING'
-        ? (
-          <SplashScreen />
-        )
-        : authState.state === 'AUTHORIZING' ? (
-          <AuthenticationScreen setTokenData={setTokenData} />
-        )
-        : (
-          <HomeTabBar tokenData={authState.tokenData} signOut={signOut} />
-        )
-      }
+      {renderScreen(authState)}
     </NavigationContainer>
   )
 }

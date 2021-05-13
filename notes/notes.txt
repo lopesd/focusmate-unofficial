@@ -1,12 +1,11 @@
 TODO
-[x] put code on github
-[ ] app and notification icons
+[x] allow setting notification period
 [ ] DUPLICATE NOTIFICATION BUG: handle refreshes that occur after a notification but before the corresponding session
-[ ] rename to Focusmate Unofficial
-[ ] fix the keyboardavoidingview
 [ ] better error handling for sign in issues
-[ ] allow setting notification period
+[ ] fix the keyboardavoidingview and dynamically place logo on splash screen
 [ ] put it on the play store
 [ ] option for making it an alarm instead of a notification
 [ ] clean up notification-interface.ts
 [ ] tests
+[ ] account for network request failure in splash screen (when using refresh token)
+[ ] account for refresh token potentially becoming stale (it doesn't stale now but could later)

@@ -2,9 +2,10 @@ import BackgroundFetch from "react-native-background-fetch"
 import { getAndRefreshStoredTokenData, getStoredTokenData } from "./auth-helper"
 import { getSortedFutureFocusmateSessions } from "./fm-api-helpers"
 import { updateNotifications } from "./notification-helpers"
+import { getStoredSettingsOrDefaults } from "./settings-helper"
 import { sleep } from "./util"
 
-export async function configureBackgroundExecution() {
+export async function configureAndStartBackgroundExecution() {
   BackgroundFetch.configure({ 
     minimumFetchInterval: 1,
     stopOnTerminate: false,
@@ -14,12 +15,17 @@ export async function configureBackgroundExecution() {
   }, handleTask, handleTimeout)
 }
 
+export function stopBackgroundExecution() {
+  return BackgroundFetch.stop()
+}
+
 export async function handleTask(taskId: string) {
   console.log('RUNNING IN THE BACKGROUND')
   const tokenData = await getAndRefreshStoredTokenData()
   if (tokenData) {
     const sessions = await getSortedFutureFocusmateSessions(tokenData.accessToken)
-    updateNotifications(sessions)
+    const settings = await getStoredSettingsOrDefaults()
+    updateNotifications(sessions, settings.notificationOffset)
     await sleep(100) // just making sure the app isn't put back to sleep before we can update notifications
   } else {
     // cancel future job executions?

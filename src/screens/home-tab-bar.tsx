@@ -1,7 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import React from 'react'
-import { AuthContext } from '../contexts'
-import { TokenData } from '../logic/auth-helper'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import MainScreen from './main-screen'
@@ -10,11 +8,7 @@ import { FocusmateSession } from '../types'
 import { getSortedFutureFocusmateSessions } from '../logic/fm-api-helpers'
 import { AppState, AppStateStatus } from 'react-native'
 import { updateNotifications } from '../logic/notification-helpers'
-
-interface HomeTabBarProps {
-  tokenData: TokenData,
-  signOut: () => void
-}
+import { AuthContext, SettingsContext } from '../contexts'
 
 function settingsIcon ({focused, color, size}: { focused: boolean, color: string, size: number }) {
   const name = 'settings' //focused ? 'pencil' : 'pencil-outline'
@@ -26,67 +20,58 @@ function mainIcon ({focused, color, size}: { focused: boolean, color: string, si
   return <MaterialIcons name={name} color={color} size={size} />
 }
 
-const REFRESH_SESSION_INTERVAL_MILLIS = 1000 * 5 // every 5 seconds
+const REFRESH_SESSION_INTERVAL_MILLIS = 1000 * 5
 
-export function HomeTabBar(props: HomeTabBarProps) {
+export function HomeTabBar() {
+  const authContext = React.useContext(AuthContext)
+  const settingsContext = React.useContext(SettingsContext)
+
   const [sessions, setSessions] = React.useState<FocusmateSession[]>([])
-
-  // refresh sessions every 1 minute if the app is in the foreground
-  React.useEffect(() => {
-    AppState.addEventListener("change", handleAppStateChange);
-
-    // refresh sessions on initial load
-    refreshSessionsAndNotifications()
-
-    // refresh them on an interval too
-    const refreshSessionsInterval = setInterval(refreshSessionsAndNotifications, REFRESH_SESSION_INTERVAL_MILLIS)
-
-    return () => {
-      clearInterval(refreshSessionsInterval)
-      AppState.removeEventListener("change", handleAppStateChange)
-    }
-  }, [])
 
   // handle coming to the foreground
   const appState = React.useRef(AppState.currentState)
-  function handleAppStateChange (nextAppState: AppStateStatus) {
-    if (
-      appState.current.match(/inactive|background/) &&
-      nextAppState === "active"
-    ) {
-      refreshSessionsAndNotifications()
+
+  React.useEffect(() => {
+    console.log('settings change detected in home tab bar')
+    const offset = settingsContext.settings.notificationOffset
+
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (appState.current.match(/inactive|background/) && nextAppState === "active") {
+        console.log("foreground. notification offset: ", offset)
+        refreshSessionsAndNotifications(offset)
+      }
+      appState.current = nextAppState
     }
-    appState.current = nextAppState
-  }
+    AppState.addEventListener("change", handleAppStateChange)
+
+    const refreshInterval = setInterval(() => refreshSessionsAndNotifications(offset), REFRESH_SESSION_INTERVAL_MILLIS)
+
+    return () => {
+      AppState.removeEventListener("change", handleAppStateChange)
+      clearInterval(refreshInterval)
+    }
+  }, [settingsContext.settings.notificationOffset])
+
+
 
   const Tab = createBottomTabNavigator()
 
-  const authContext = { 
-    accessToken: async () => {
-      // TODO: check if token is stale
-      return props.tokenData.accessToken
-    },
-    signOut: props.signOut
-  }
-
-  async function refreshSessionsAndNotifications () {
-    console.log('refreshing sessions')
-    const newSessions = await getSortedFutureFocusmateSessions(props.tokenData.accessToken)
-    updateNotifications(newSessions)
+  async function refreshSessionsAndNotifications(notificationOffset: number) {
+    console.log('refreshing sessions. notification offset:', notificationOffset)
+    const newSessions = await getSortedFutureFocusmateSessions(await authContext.accessToken())
+    updateNotifications(newSessions, notificationOffset)
     setSessions(newSessions)
   }
 
   return (
-    <AuthContext.Provider value={authContext}>
-      <Tab.Navigator tabBarOptions={{ showLabel: false }} >
-        <Tab.Screen name="Main" options={{ tabBarIcon: mainIcon }}>
-          {() => <MainScreen sessions={sessions} refreshSessions={refreshSessionsAndNotifications}/>}
-        </Tab.Screen>
+    <Tab.Navigator tabBarOptions={{ showLabel: false }} >
+      <Tab.Screen name="Main" options={{ tabBarIcon: mainIcon }}>
+        {() => <MainScreen sessions={sessions} />}
+      </Tab.Screen>
 
-        <Tab.Screen name="Settings"  options={{ tabBarIcon: settingsIcon }}>
-          {() => <SettingsScreen />}
-        </Tab.Screen>
-      </Tab.Navigator>
-    </AuthContext.Provider>
+      <Tab.Screen name="Settings"  options={{ tabBarIcon: settingsIcon }}>
+        {() => <SettingsScreen />}
+      </Tab.Screen>
+    </Tab.Navigator>
   )
 }

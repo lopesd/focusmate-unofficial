@@ -9,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 type AuthFormState = 'ENABLED' | 'DISABLED'
 
 interface AuthenticationScreenProps {
-  setTokenData: (tokenData: TokenData) => void
+  signIn: (tokenData: TokenData) => void
 }
 
 export function AuthenticationScreen(props: AuthenticationScreenProps) {
@@ -25,7 +25,7 @@ export function AuthenticationScreen(props: AuthenticationScreenProps) {
     try {
       tokenData = await fetchAndStoreNewTokensFromNetwork(emailInputStr, passwordInputStr)
       if (tokenData) {
-        props.setTokenData(tokenData)
+        props.signIn(tokenData)
         return
       }
     } catch (e) {
