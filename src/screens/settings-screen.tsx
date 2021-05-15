@@ -2,6 +2,7 @@ import Slider from '@react-native-community/slider';
 import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { AuthContext, SettingsContext } from '../contexts';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 
 export default function SettingsScreen() {
   const authContext = React.useContext(AuthContext)
@@ -34,6 +35,9 @@ export default function SettingsScreen() {
           value={notificationOffset}
           onValueChange={onNotificationOffsetSliderValueChange}
           onSlidingComplete={onNotificationOffsetSliderSlidingComplete}
+          thumbTintColor={'#4648aa'}
+          minimumTrackTintColor={'#595ab7'}
+          maximumTrackTintColor={'#c49969'}
         />
       </View>
 
@@ -44,6 +48,7 @@ export default function SettingsScreen() {
         <Text style={styles.softButtonText}>
           SIGN OUT
         </Text>
+        <MaterialIcons name="trending-flat" size={30} color={'#c49969'}/>
       </TouchableOpacity>
     </View>
   )
@@ -59,7 +64,7 @@ const styles = StyleSheet.create({
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
-    marginBottom: 20,
+    marginBottom: 50,
   },
   notificationOffsetSlider: {
 
@@ -85,7 +90,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   softButtonText: {
-    fontFamily: 'monospace',
     color: '#c49969',
     fontSize: 17,
     fontWeight: 'bold'

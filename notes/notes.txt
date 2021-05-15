@@ -1,6 +1,7 @@
 TODO
+[x] fix the keyboardavoidingview and dynamically place logo on splash screen
+[ ] refresh button
 [ ] better error handling for sign in issues
-[ ] fix the keyboardavoidingview and dynamically place logo on splash screen
 [ ] put it on the play store
 [ ] tests
 [ ] fix race condition where a refresh could potentially remove a notification before it occurs

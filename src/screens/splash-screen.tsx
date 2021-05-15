@@ -5,7 +5,6 @@ import { Logo } from '../components/logo'
 export function SplashScreen() {
   return (
     <SafeAreaView style={styles.background}>
-      <Logo />
       <View style={styles.activityIndicatorContainer}>
         <ActivityIndicator size="large" color={"#fff"} />
       </View>
@@ -21,8 +20,7 @@ const styles = StyleSheet.create({
   },
   activityIndicatorContainer: {
     width: '100%',
-    position: 'absolute',
-    top: 300,
+    height: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'

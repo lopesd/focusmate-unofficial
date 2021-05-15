@@ -1,10 +1,11 @@
 import React from 'react'
-import { KeyboardAvoidingView, StyleSheet, Text, View } from 'react-native'
+import { Button, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native'
 import { TextInput, TouchableOpacity } from 'react-native'
 import { fetchAndStoreNewTokensFromNetwork, TokenData } from '../logic/auth-helper'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { Logo } from '../components/logo'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { ScrollView } from 'react-native-gesture-handler'
 
 type AuthFormState = 'ENABLED' | 'DISABLED'
 
@@ -31,82 +32,96 @@ export function AuthenticationScreen(props: AuthenticationScreenProps) {
     } catch (e) {
       console.error(e)
     }
-    setStatusMessage('Failed to authorize. Check console for details.')
+    setStatusMessage('Failed to authorize.') // TODO : display better errors
     setAuthFormState('ENABLED')
   }
 
   return (
-    <SafeAreaView style={styles.background}>
-      <KeyboardAvoidingView
-        behavior={'position'}
-        style={{ flex: 1, position: 'relative' }}
-      >
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{flex: 1}}>
+      <SafeAreaView style={styles.container}>
+        <ScrollView style={{ paddingVertical: 2 }}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.inner}>
 
-        <Logo />
+            <Logo />
+              <View style={styles.formContainer}>
+                <TextInput 
+                  editable={authFormState === 'ENABLED'}
+                  style={styles.input}
+                  placeholder="email"
+                  onChangeText={setEmailInputStr}
+                  placeholderTextColor={'grey'}
+                  autoCompleteType={'email'}
+                  autoCorrect={false}
+                  importantForAutofill={'yes'}
+                  keyboardType={'email-address'}
+                />
+                <TextInput
+                  editable={authFormState === 'ENABLED'}
+                  style={styles.input}
+                  placeholder="password"
+                  onChangeText={setPasswordInputStr}
+                  placeholderTextColor={'grey'}
+                  autoCompleteType={'password'}
+                  autoCorrect={false}
+                  importantForAutofill={'yes'}
+                  secureTextEntry={true}
+                />
 
-        <View style={styles.formContainer}>
-          <TextInput 
-            editable={authFormState === 'ENABLED'}
-            style={styles.input}
-            placeholder="email"
-            onChangeText={setEmailInputStr}
-            placeholderTextColor={'grey'}
-            autoCompleteType={'email'}
-            autoCorrect={false}
-            importantForAutofill={'yes'}
-            keyboardType={'email-address'}
-          />
-          <TextInput
-            editable={authFormState === 'ENABLED'}
-            style={styles.input}
-            placeholder="password"
-            onChangeText={setPasswordInputStr}
-            placeholderTextColor={'grey'}
-            autoCompleteType={'password'}
-            autoCorrect={false}
-            importantForAutofill={'yes'}
-            secureTextEntry={true}
-          />
+                <TouchableOpacity
+                  disabled={authFormState === 'DISABLED'} 
+                  style={styles.signInButton}
+                  onPress={onLoginButtonPress}
+                >
+                  <Text style={styles.signInText}>LOG IN</Text>
+                  <MaterialIcons name="trending-flat" size={30} color={'#fff'}/>
+                </TouchableOpacity>
 
-          <TouchableOpacity
-            disabled={authFormState === 'DISABLED'} 
-            style={styles.signInButton}
-            onPress={onLoginButtonPress}
-          >
-            <Text style={styles.signInText}>LOG IN</Text>
-            <MaterialIcons name="trending-flat" size={30} color={'#fff'}/>
-          </TouchableOpacity>
+                <View style={styles.statusTextContainer}>
+                  <Text style={styles.statusText}>
+                    {statusMessage}
+                  </Text>
+                </View>
 
-          <View style={styles.statusTextContainer}>
-            <Text style={styles.statusText}>
-              {statusMessage}
-            </Text>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+              <View style={{flex: 1}} />
+            </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </ScrollView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#4648aa'
+  },
+  inner: {
+    padding: 24,
+    flex: 1,
+    justifyContent: "flex-end",
+    marginTop: 100
+  },
   background: {
     width: '100%',
     height: '100%',
     backgroundColor: '#4648aa'
   },
   formContainer: {
-    position: 'absolute',
-    top: 350,
     width: '100%',
     paddingLeft: 20,
-    paddingRight: 20
+    paddingRight: 20,
+    marginTop: 20
   },
   input: {
     borderRadius: 5,
     marginBottom: 20,
     paddingLeft: 15,
     paddingRight: 15,
-    fontFamily: 'monospace',
     fontSize: 15,
     color: 'black',
     backgroundColor: 'white',
@@ -127,7 +142,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   signInText: {
-    fontFamily: 'monospace',
     color: 'white',
     fontSize: 17,
     fontWeight: 'bold'
@@ -138,7 +152,6 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 17,
-    fontFamily: 'monospace',
     color: 'white',
   }
 })
