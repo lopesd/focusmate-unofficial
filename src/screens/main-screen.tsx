@@ -1,44 +1,42 @@
-import React, { useEffect } from 'react'
-import { StyleSheet, View, Text } from "react-native"
-import { PushNotificationScheduledLocalObject, PushNotificationScheduleObject } from 'react-native-push-notification'
-import { AuthContext } from '../contexts'
-import { getScheduledNotifications } from '../interfaces/notification-interface'
-import { simpleTimeFormat } from '../logic/date-helpers'
+import React from 'react'
+import { StyleSheet, View, Text, SectionList } from "react-native"
 import { FocusmateSession } from '../types'
-import IonIcons from 'react-native-vector-icons/Ionicons'
-
-const FIFTY_MINUTES_IN_MILLIS = 1000 * 60 * 50
-
-function Session(props: { session: FocusmateSession }) {
-  const startTime = simpleTimeFormat(new Date(props.session.session_time))
-  const endTime = simpleTimeFormat(new Date(props.session.session_time + FIFTY_MINUTES_IN_MILLIS))
-  const sessionTimeStr = `${startTime} - ${endTime}`
-
-  const partnerStr = props.session.user === '' ? 'Matching...' : props.session.user
-  return (
-    <View style={styles.sessionContainer}>
-      <Text style={styles.sessionTimeText}>
-        {sessionTimeStr}
-      </Text>
-      <Text style={styles.sessionPartnerText}>
-        <IonIcons name="people" size={17}/> {partnerStr}
-      </Text>
-    </View>
-  )
-}
+import { SessionListItem } from '../components/session-list-item'
+import { simpleDayFormat } from '../logic/date-helpers'
 
 interface MainScreenProps {
   sessions: FocusmateSession[]
 }
 
 export default function MainScreen(props: MainScreenProps) {
+  const sessionsGroupedByDate = groupSessionsByDateForSectionList(props.sessions)
+
   return (
     <View style={styles.gutters}>
-      {props.sessions.map(session =>
-        <Session session={session} key={session.session_time} />
-      )}
+      <SectionList 
+        sections={sessionsGroupedByDate}
+        keyExtractor={item => item.session_time.toString()}
+        renderItem={data => <SessionListItem session={data.item} />}
+        renderSectionHeader={data => <Text style={styles.sessionSectionTitleText}>{data.section.title}</Text>}
+        ListHeaderComponent={<Text style={styles.listHeader}>Upcoming sessions</Text>}
+      />
     </View>
   )
+}
+
+function groupSessionsByDateForSectionList(sessions: FocusmateSession[]) {
+  const reduced = sessions.reduce<Record<string, FocusmateSession[]>>((rv, session) => {
+    const dateStr = simpleDayFormat(new Date(session.session_time));
+    (rv[dateStr] = rv[dateStr] || []).push(session)
+    return rv
+  }, {})
+
+  const grouped = Object.keys(reduced).map(dateStr => ({
+    title: dateStr,
+    data: reduced[dateStr]
+  })).sort((a, b) => a.data[0].session_time > b.data[0].session_time ? 1 : -1)
+
+  return grouped
 }
 
 const styles = StyleSheet.create({
@@ -47,56 +45,15 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10
   },
-  sessionContainer: {
-    borderColor: '#4648aa',
-    backgroundColor: '#f2f3fe',
-    borderWidth: 2,
-    borderRadius: 5,
-    marginBottom: 15,
-    padding: 10
+  listHeader: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    marginBottom: 10
   },
-  sessionTimeText: {
-    color: 'black',
-    fontSize: 20,
-    fontWeight: 'bold'
-  },
-  sessionPartnerText: {
-    color: '#4648aa',
-    fontSize: 15,
-    fontWeight: 'bold'
-  },
-  buttonNoEmphasis: {
-    width: '100%',
-    height: 55,
-    backgroundColor: '#fff',
-    borderColor: '#c49969',
-    borderWidth: 1,
-    borderRadius: 5,
-    display: 'flex',
-    justifyContent: 'space-between',
-    paddingLeft: 15,
-    paddingRight: 15,
-    alignItems: 'center',
-    flexDirection: 'row'
-  },
-  buttonNoEmphasisText: {
-    fontFamily: 'monospace',
-    color: 'black',
+  sessionSectionTitleText: {
     fontSize: 17,
-    fontWeight: 'bold'
-  },
-  buttonEmphasis: {
-    width: '100%',
-    height: 55,
-    backgroundColor: '#c49969',
-    borderColor: '#c49969',
-    borderWidth: 1,
-    borderRadius: 5,
-    display: 'flex',
-    justifyContent: 'space-between',
-    paddingLeft: 15,
-    paddingRight: 15,
-    alignItems: 'center',
-    flexDirection: 'row'
+    fontWeight: 'bold',
+    color: 'grey',
+    marginBottom: 10
   }
 })
