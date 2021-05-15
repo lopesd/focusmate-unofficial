@@ -28,7 +28,6 @@ const styles = StyleSheet.create({
   },
   subLogoText: {
     fontSize: 20,
-    color: 'white',
-    fontFamily: 'monospace'
+    color: 'white'
   },
 })

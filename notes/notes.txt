@@ -1,6 +1,4 @@
 TODO
-[x] fix the keyboardavoidingview and dynamically place logo on splash screen
-[ ] refresh button
 [ ] better error handling for sign in issues
 [ ] put it on the play store
 [ ] tests

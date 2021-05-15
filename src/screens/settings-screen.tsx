@@ -57,8 +57,8 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   gutters: {
     marginTop: 20,
-    marginLeft: 10,
-    marginRight: 10
+    marginLeft: 20,
+    marginRight: 20
   },
   notificationOffsetControlsContainer: {
     width: '100%',

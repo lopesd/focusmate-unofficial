@@ -27,6 +27,7 @@ export function HomeTabBar() {
   const settingsContext = React.useContext(SettingsContext)
 
   const [sessions, setSessions] = React.useState<FocusmateSession[]>([])
+  const [isRefreshing, setIsRefreshing] = React.useState<boolean>(false)
 
   // handle coming to the foreground
   const appState = React.useRef(AppState.currentState)
@@ -62,16 +63,20 @@ export function HomeTabBar() {
   const Tab = createBottomTabNavigator()
 
   async function refreshSessionsAndNotifications(notificationOffset: number) {
+    setIsRefreshing(true)
     console.log('refreshing sessions. notification offset:', notificationOffset)
     const newSessions = await getSortedFutureFocusmateSessions(await authContext.accessToken())
     updateNotifications(newSessions, notificationOffset)
     setSessions(newSessions)
+    setIsRefreshing(false)
   }
+
+  const refreshCallback = () => refreshSessionsAndNotifications(settingsContext.settings.notificationOffset)
 
   return (
     <Tab.Navigator tabBarOptions={{ showLabel: false }} >
       <Tab.Screen name="Main" options={{ tabBarIcon: mainIcon }}>
-        {() => <MainScreen sessions={sessions} />}
+        {() => <MainScreen sessions={sessions} refresh={refreshCallback} isRefreshing={isRefreshing} />}
       </Tab.Screen>
 
       <Tab.Screen name="Settings"  options={{ tabBarIcon: settingsIcon }}>
