@@ -4,7 +4,7 @@ import { simpleTimeFormat } from "../logic/date-helpers"
 export async function scheduleSessionReminderNotification(sessionTime: number, reminderOffsetMinutes: number) {
   const sessionTimeStr = simpleTimeFormat(new Date(sessionTime))
   const notificationScheduleTime = sessionTime - (1000 * 60 * reminderOffsetMinutes)
-  console.log('scheduling: ', sessionTime)
+  console.log('scheduling: ', new Date(notificationScheduleTime))
   return PushNotification.localNotificationSchedule({
     channelId: "UnofficialFocusmateAppNotificationChannel", // (required) channelId, if the channel doesn't exist, notification will not trigger.
     showWhen: true, // (optional) default: true

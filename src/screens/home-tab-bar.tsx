@@ -20,7 +20,7 @@ function mainIcon ({focused, color, size}: { focused: boolean, color: string, si
   return <MaterialIcons name={name} color={color} size={size} />
 }
 
-const REFRESH_SESSION_INTERVAL_MILLIS = 1000 * 5
+const REFRESH_SESSION_INTERVAL_MILLIS = 1000 * 15
 
 export function HomeTabBar() {
   const authContext = React.useContext(AuthContext)
@@ -32,9 +32,12 @@ export function HomeTabBar() {
   const appState = React.useRef(AppState.currentState)
 
   React.useEffect(() => {
-    console.log('settings change detected in home tab bar')
+    console.log('settings change detected in home tab bar (or first load)')
+    // get the notification offset and immediately refresh notifications
     const offset = settingsContext.settings.notificationOffset
+    refreshSessionsAndNotifications(offset)
 
+    // make sure that the function that runs on foreground has the update notification offset value
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (appState.current.match(/inactive|background/) && nextAppState === "active") {
         console.log("foreground. notification offset: ", offset)
@@ -44,8 +47,10 @@ export function HomeTabBar() {
     }
     AppState.addEventListener("change", handleAppStateChange)
 
+    // same with the foreground interval
     const refreshInterval = setInterval(() => refreshSessionsAndNotifications(offset), REFRESH_SESSION_INTERVAL_MILLIS)
 
+    // cleanup
     return () => {
       AppState.removeEventListener("change", handleAppStateChange)
       clearInterval(refreshInterval)

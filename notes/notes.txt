@@ -1,11 +1,10 @@
 TODO
-[x] allow setting notification period
-[ ] DUPLICATE NOTIFICATION BUG: handle refreshes that occur after a notification but before the corresponding session
 [ ] better error handling for sign in issues
 [ ] fix the keyboardavoidingview and dynamically place logo on splash screen
 [ ] put it on the play store
+[ ] tests
+[ ] fix race condition where a refresh could potentially remove a notification before it occurs
 [ ] option for making it an alarm instead of a notification
 [ ] clean up notification-interface.ts
-[ ] tests
 [ ] account for network request failure in splash screen (when using refresh token)
 [ ] account for refresh token potentially becoming stale (it doesn't stale now but could later)
