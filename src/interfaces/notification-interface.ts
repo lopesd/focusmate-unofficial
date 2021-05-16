@@ -1,4 +1,4 @@
-import PushNotification, { PushNotificationScheduledLocalObject, PushNotificationScheduleObject } from "react-native-push-notification"
+import PushNotification, { PushNotificationScheduledLocalObject } from "react-native-push-notification"
 import { simpleTimeFormat } from "../logic/date-helpers"
 
 export async function scheduleSessionReminderNotification(sessionTime: number, reminderOffsetMinutes: number) {

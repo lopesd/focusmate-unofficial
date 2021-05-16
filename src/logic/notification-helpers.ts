@@ -19,7 +19,7 @@ export async function updateNotifications(sessions: FocusmateSession[], notifica
   const newNotificationsToSchedule: ScheduledNotification[] = []
 
   const now = Date.now()
-  sessions.forEach(async session => {
+  sessions.forEach(session => {
     const newNotif = { sessionTime: session.session_time, notificationOffset }
     newNotificationsToStore.push(newNotif)
     const notif = existingScheduledNotifications.find(n => n.sessionTime === session.session_time)
@@ -38,7 +38,7 @@ export async function updateNotifications(sessions: FocusmateSession[], notifica
   // we've determined the new state of our notifications.
   unscheduleAllNotifications()
   for (let i = 0; i < newNotificationsToSchedule.length; ++i) {
-    await scheduleSessionReminderNotification(sessions[i].session_time, notificationOffset)
+    await scheduleSessionReminderNotification(newNotificationsToSchedule[i].sessionTime, notificationOffset)
   }
   storeScheduledNotifications(newNotificationsToStore)
 }
