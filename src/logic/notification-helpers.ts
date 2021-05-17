@@ -1,5 +1,5 @@
 import { scheduleSessionReminderNotification, unscheduleAllNotifications } from "../interfaces/notification-interface";
-import { getJson, storeJson } from "../interfaces/storage-interface";
+import { clearJson, getJson, storeJson } from "../interfaces/storage-interface";
 import { FocusmateSession } from "../types";
 
 const SCHEDULED_NOTIFICATIONS_STORAGE_KEY = 'FM:ScheduledNotifications'
@@ -43,8 +43,9 @@ export async function updateNotifications(sessions: FocusmateSession[], notifica
   storeScheduledNotifications(newNotificationsToStore)
 }
 
-export async function clearAllScheduledNotifications() {
+export async function clearAllScheduledNotificationsAndData() {
   unscheduleAllNotifications()
+  return clearScheduledNotifications()
 }
 
 async function getScheduledNotifications(): Promise<ScheduledNotification[]> {
@@ -54,4 +55,8 @@ async function getScheduledNotifications(): Promise<ScheduledNotification[]> {
 
 function storeScheduledNotifications(notifications: ScheduledNotification[]) {
   return storeJson(SCHEDULED_NOTIFICATIONS_STORAGE_KEY, notifications)
+}
+
+function clearScheduledNotifications() {
+  return clearJson(SCHEDULED_NOTIFICATIONS_STORAGE_KEY)
 }

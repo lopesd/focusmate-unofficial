@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import { AuthenticationScreen } from './screens/authentication-screen'
 import { HomeTabBar } from './screens/home-tab-bar'
 import { TokenData, clearStoredTokens, getAndRefreshStoredTokenData, refreshTokenDataIfStale } from './logic/auth-helper'
-import { clearAllScheduledNotifications } from './logic/notification-helpers'
+import { clearAllScheduledNotificationsAndData } from './logic/notification-helpers'
 import { SplashScreen } from './screens/splash-screen'
 import { clearStoredSettings, defaultSettings, getStoredSettingsOrDefaults, mergeSettings } from './logic/settings-helper'
 import { PartialFMAppSettings } from './logic/settings-helper'
@@ -45,7 +45,7 @@ const App = () => {
 
   async function signOut () {
     await Promise.all([
-      clearAllScheduledNotifications(),
+      clearAllScheduledNotificationsAndData(),
       clearStoredTokens(),
       // clearStoredSettings(), // let's persist settings per-device for now - better user experience than resetting to defaults after signout/signin
       stopBackgroundExecution()

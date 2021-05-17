@@ -58,4 +58,8 @@ buck-out/
 # CocoaPods
 /ios/Pods/
 
+# temporary credential hacks
 DO_NOT_COMMIT*
+
+# android app bundles
+*.aab

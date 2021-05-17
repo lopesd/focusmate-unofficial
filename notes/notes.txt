@@ -1,7 +1,6 @@
 TODO
-[ ] better error handling for sign in issues
-[ ] put it on the play store
 [ ] tests
+[ ] better error handling for sign in issues
 [ ] fix race condition where a refresh could potentially remove a notification before it occurs
 [ ] option for making it an alarm instead of a notification
 [ ] clean up notification-interface.ts
