@@ -5,11 +5,10 @@ import { HomeTabBar } from './screens/home-tab-bar'
 import { TokenData, clearStoredTokens, getAndRefreshStoredTokenData, refreshTokenDataIfStale } from './logic/auth-helper'
 import { clearAllScheduledNotificationsAndData } from './logic/notification-helpers'
 import { SplashScreen } from './screens/splash-screen'
-import { clearStoredSettings, defaultSettings, getStoredSettingsOrDefaults, mergeSettings } from './logic/settings-helper'
+import { defaultSettings, getStoredSettingsOrDefaults, mergeSettings } from './logic/settings-helper'
 import { PartialFMAppSettings } from './logic/settings-helper'
 import { AuthContext, FMAppSettingsContext, SettingsContext } from './contexts'
 import { configureAndStartBackgroundExecution, stopBackgroundExecution } from './logic/notification-refresh-logic'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type AuthState = 
   | { state: 'LOADING' }

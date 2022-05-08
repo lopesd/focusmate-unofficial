@@ -9,6 +9,7 @@ import { getSortedFutureFocusmateSessions } from '../logic/fm-api-helpers'
 import { AppState, AppStateStatus } from 'react-native'
 import { updateNotifications } from '../logic/notification-helpers'
 import { AuthContext, SettingsContext } from '../contexts'
+import AlarmModule from '../native-modules/alarm-module'
 
 function settingsIcon ({focused, color, size}: { focused: boolean, color: string, size: number }) {
   const name = 'settings' //focused ? 'pencil' : 'pencil-outline'

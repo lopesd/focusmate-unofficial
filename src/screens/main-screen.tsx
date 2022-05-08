@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { StyleSheet, View, Text, SectionList, ActivityIndicator, TouchableOpacity } from "react-native"
 import { FocusmateSession } from '../types'
 import { SessionListItem } from '../components/session-list-item'
 import { simpleDayFormat } from '../logic/date-helpers'
 import IonIcons from 'react-native-vector-icons/Ionicons'
+import AlarmModule from '../native-modules/alarm-module'
 
 interface MainScreenProps {
   sessions: FocusmateSession[]
@@ -11,7 +12,17 @@ interface MainScreenProps {
   isRefreshing: boolean
 }
 
+function alarm() {
+  console.log('registering for 62 seconds in the future')
+  const time = Date.now() + 62 * 1000
+  AlarmModule.registerAlarm(time)
+}
+
 export default function MainScreen(props: MainScreenProps) {
+  useEffect(() => {
+    alarm()
+  }, [])
+
   const sessionsGroupedByDate = groupSessionsByDateForSectionList(props.sessions)
 
   function HeaderComponent() {
